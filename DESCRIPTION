@@ -1,0 +1,44 @@
+Package: shokenuse
+Type: Package
+Title: Visualize LLM Token Usage Across Tools and Machines
+Version: 0.1.0
+Authors@R: person(
+    "Martin", "Frigaard",
+    role = c("aut", "cre"),
+    email = "mjfrigaard@pm.me"
+  )
+Description: Reads and aggregates LLM token usage from Claude Code (JSONL
+    project files), with support for manual CSV imports from other sources
+    (Anthropic Console, Posit AI assistants). Provides a Shiny dashboard for
+    exploring total usage, cost estimates, trends over time, and breakdowns
+    by source, project, and model.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    shiny (>= 1.8.0),
+    bslib (>= 0.7.0),
+    bsicons,
+    cli,
+    dplyr,
+    fs,
+    ggplot2,
+    httr2,
+    jsonlite,
+    logger,
+    lubridate,
+    rlang,
+    scales,
+    tibble,
+    tidyr,
+    vroom
+Suggests:
+    httptest2,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    thematic,
+    withr
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
