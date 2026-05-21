@@ -7,8 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-~~~
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -254,6 +252,13 @@ util_summarise_usage(synthetic_costed, by = "model")
 
 API data can be merged into the dashboard in two ways:
 
+### Interactively (via the Data tab)
+
+Open the **Data** tab, enter your `sk-ant-admin...` key, give the source a
+**Machine label** (e.g. `"org-name"`), click **Fetch Usage**, then click
+**Add to Dashboard**. Repeat with a different key to load data from another
+organization — each fetch appends to the existing dashboard data.
+
 ### Programmatically (before launching)
 
 ```{r merge-programmatic}
@@ -262,7 +267,7 @@ api_usage <- util_fetch_usage(
   group_by    = "model"
 )
 
-# Convert to usage schema
+# Convert to the usage schema expected by util_combine_usage()
 api_rows <- api_usage |>
   dplyr::mutate(
     timestamp             = as.POSIXct(timestamp_bucket, tz = "UTC"),
@@ -271,23 +276,17 @@ api_rows <- api_usage |>
     project               = NA_character_,
     session_id            = NA_character_,
     cache_creation_tokens = cache_creation_input_tokens,
-    cache_read_tokens     = cache_read_input_tokens
+    cache_read_tokens     = cache_read_input_tokens,
+    date                  = as.Date(timestamp)
   ) |>
-  dplyr::select(timestamp, machine, source, project, session_id,
+  dplyr::select(timestamp, date, machine, source, project, session_id,
                 model, input_tokens, cache_creation_tokens,
-                cache_read_tokens, output_tokens)
+                cache_read_tokens, output_tokens) |>
+  util_add_cost()
 
-# Combine with local Claude Code data
-local_usage <- util_read_claude_code()
-all_usage   <- util_combine_usage(local_usage, api_rows)
+# Optionally combine with other data before inspecting
+all_usage <- util_combine_usage(api_rows, util_read_usage_csv("export.csv"))
+util_summarise_usage(all_usage, by = "model")
 
 launch_app()
 ```
-
-### Interactively (via the dashboard)
-
-Open the **API Data** tab in the dashboard, enter your Admin API key,
-configure the date range and grouping, click **Fetch Usage**, then check
-**Include in dashboard filters** and click **Merge into dashboard**.
-
-~~~

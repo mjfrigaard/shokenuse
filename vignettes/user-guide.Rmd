@@ -7,8 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-~~~
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse  = TRUE,
@@ -101,7 +99,7 @@ usage <- util_combine_usage(mac_usage, ubuntu_usage)
 timestamp. The `machine` column lets you filter or facet by machine later.
 
 A convenient way to keep this in one place is to define your directories once
-and pass them to `launch_app()`:
+and combine them programmatically:
 
 ```{r dirs}
 my_dirs <- list(
@@ -150,8 +148,8 @@ console_usage <- util_read_usage_csv(
 all_usage <- util_combine_usage(usage, console_usage)
 ```
 
-The dashboard's **Upload Data** tab lets you do the same thing interactively
-without writing any code.
+The dashboard's **Data** tab lets you do the same thing interactively
+without writing any code — upload the CSV directly and it merges into the dashboard.
 
 ---
 
@@ -313,34 +311,23 @@ util_summarise_sessions(synthetic) |>
 
 ## Launching the dashboard
 
-`launch_app()` opens the Shiny dashboard. Pass the same `claude_dirs` list you
-used for `util_read_claude_code()`:
+`launch_app()` opens the Shiny dashboard. The app starts empty — load data
+from the **Data** tab using an Admin API key or by uploading a CSV.
 
 ```{r run-app}
-# Single machine (default)
 launch_app()
-
-# Two machines
-launch_app(claude_dirs = list(
-  macOS  = "~/.claude/projects",
-  Ubuntu = "/mnt/ubuntu/.claude/projects"
-))
 ```
 
 ### Dashboard tabs
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Daily token volume (stacked bar), five key value boxes, date/machine/source filters |
-| **By Model** | Token volume and cost broken out by Claude model; model usage over time |
-| **By Project** | Top projects by token volume and cost |
+| **Data** | Load data via Admin API key or CSV upload; download local conversion scripts |
+| **Overview** | Daily token volume (stacked bar), five key metric boxes, date / machine / source filters |
+| **By Model** | Token volume and cost broken out by Claude model; usage trends over time |
+| **By Project** | Top 20 projects by total tokens and estimated cost |
 | **Sessions** | Per-session cost and token charts with outlier highlighting; detail table with CSV export |
-| **Upload Data** | CSV import for Console / Posit AI exports; downloadable template |
 | **Pricing** | Current pricing table with a link to Anthropic's live pricing page |
-| **API Data** | Fetch usage directly from the Anthropic Admin API (organization accounts only) |
-
-The **refresh button** (↺) in the navbar re-reads all JSONL files from disk
-without restarting the app — useful after a long Claude Code session.
 
 ---
 
@@ -364,11 +351,8 @@ name not yet in the table, using sonnet-4 prices.
 ```{r workflow}
 library(shokenuse)
 
-# 1. Load and combine usage from both machines
-usage <- util_combine_usage(
-  util_read_claude_code("~/.claude/projects",           machine = "macOS"),
-  util_read_claude_code("/mnt/ubuntu/.claude/projects", machine = "Ubuntu")
-)
+# 1. Parse local Claude Code logs
+usage <- util_read_claude_code("~/.claude/projects", machine = "macOS")
 
 # 2. Optionally add Console exports
 usage <- util_combine_usage(
@@ -386,11 +370,7 @@ util_summarise_usage(usage, by = c("date", "source"))
 # 5. Find expensive sessions
 util_summarise_sessions(usage) |> dplyr::filter(outlier)
 
-# 6. Explore interactively
-launch_app(claude_dirs = list(
-  macOS  = "~/.claude/projects",
-  Ubuntu = "/mnt/ubuntu/.claude/projects"
-))
+# 6. Explore interactively — load additional data from the Data tab
+launch_app()
 ```
 
-~~~

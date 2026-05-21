@@ -145,7 +145,7 @@ mod_sessions_server <- function(id, filtered_rv) {
         ggplot2::labs(x = "Estimated cost (USD)", y = "Session ID") +
         ggplot2::theme_minimal(base_size = 11) +
         ggplot2::theme(legend.position = "top")
-    })
+    }, res = 96)
 
     output$plot_sess_tokens <- shiny::renderPlot({
       s <- session_summary()
@@ -182,7 +182,7 @@ mod_sessions_server <- function(id, filtered_rv) {
         ggplot2::labs(x = "Tokens", y = "Session ID", fill = "Type") +
         ggplot2::theme_minimal(base_size = 11) +
         ggplot2::theme(legend.position = "top")
-    })
+    }, res = 96)
 
     output$tbl_sessions <- shiny::renderTable({
       s <- session_summary()

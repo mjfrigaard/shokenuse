@@ -57,36 +57,63 @@ test_that(".parse_usage_response returns empty tibble for empty list", {
 })
 
 test_that(".parse_usage_response parses a minimal result list", {
+  # Structure: list of pages -> each page has `data` -> each bucket has `results`
   sample <- list(
     list(
-      timestamp_bucket = "2026-05-01T00:00:00Z",
-      input_tokens     = 1000L,
-      output_tokens    = 200L,
-      cache_creation_input_tokens = 500L,
-      cache_read_input_tokens     = 300L,
-      n_requests       = 5L,
-      model            = "claude-opus-4"
+      data = list(
+        list(
+          starting_at = "2026-05-01T00:00:00Z",
+          ending_at   = "2026-05-02T00:00:00Z",
+          results     = list(
+            list(
+              uncached_input_tokens = 1000L,
+              output_tokens         = 200L,
+              cache_creation        = list(
+                ephemeral_1h_input_tokens = 400L,
+                ephemeral_5m_input_tokens = 100L
+              ),
+              cache_read_input_tokens = 300L,
+              model                   = "claude-opus-4"
+            )
+          )
+        )
+      ),
+      has_more  = FALSE,
+      next_page = NULL
     )
   )
   result <- shokenuse:::.parse_usage_response(sample)
   expect_equal(nrow(result), 1)
   expect_equal(result$input_tokens, 1000L)
+  expect_equal(result$cache_creation_input_tokens, 500L)
   expect_equal(result$model, "claude-opus-4")
 })
 
 test_that(".parse_usage_response drops all-NA optional columns", {
   sample <- list(
     list(
-      timestamp_bucket = "2026-05-01T00:00:00Z",
-      input_tokens     = 100L,
-      output_tokens    = 50L,
-      cache_creation_input_tokens = 0L,
-      cache_read_input_tokens     = 0L,
-      n_requests       = 1L
+      data = list(
+        list(
+          starting_at = "2026-05-01T00:00:00Z",
+          ending_at   = "2026-05-02T00:00:00Z",
+          results     = list(
+            list(
+              uncached_input_tokens   = 100L,
+              output_tokens           = 50L,
+              cache_creation          = list(
+                ephemeral_1h_input_tokens = 0L,
+                ephemeral_5m_input_tokens = 0L
+              ),
+              cache_read_input_tokens = 0L
+            )
+          )
+        )
+      ),
+      has_more  = FALSE,
+      next_page = NULL
     )
   )
   result <- shokenuse:::.parse_usage_response(sample)
-  # model was not in response so should be dropped
   expect_false("model" %in% names(result))
 })
 
@@ -102,9 +129,17 @@ test_that(".parse_cost_response returns empty tibble for empty list", {
 test_that(".parse_cost_response parses a cost result", {
   sample <- list(
     list(
-      timestamp_bucket = "2026-05-01T00:00:00Z",
-      cost             = 12.50,
-      workspace_id     = "ws_abc"
+      data = list(
+        list(
+          starting_at = "2026-05-01T00:00:00Z",
+          ending_at   = "2026-05-02T00:00:00Z",
+          results     = list(
+            list(cost = 12.50, workspace_id = "ws_abc")
+          )
+        )
+      ),
+      has_more  = FALSE,
+      next_page = NULL
     )
   )
   result <- shokenuse:::.parse_cost_response(sample)

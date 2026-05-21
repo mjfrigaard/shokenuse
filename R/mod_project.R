@@ -56,7 +56,7 @@ mod_project_server <- function(id, filtered_rv) {
         ) +
         ggplot2::labs(x = "Total tokens", y = NULL) +
         ggplot2::theme_minimal(base_size = 12)
-    })
+    }, res = 96)
 
     output$plot_project_cost <- shiny::renderPlot({
       df <- filtered_rv()
@@ -76,6 +76,6 @@ mod_project_server <- function(id, filtered_rv) {
         ggplot2::scale_x_continuous(labels = scales::dollar) +
         ggplot2::labs(x = "Estimated cost (USD)", y = NULL) +
         ggplot2::theme_minimal(base_size = 12)
-    })
+    }, res = 96)
   })
 }

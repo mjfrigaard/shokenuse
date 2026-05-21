@@ -1,0 +1,16 @@
+url: https://mjfrigaard.github.io/shokenuse/
+template:
+  bootstrap: 5
+  bootswatch: united
+  theme: github-light
+  bslib:
+    primary: "#00a2e8"
+    secondary: "#e5e5e5"
+    code-color: "#4d4d4d"
+    code-bg: "#e5e5e5"
+    base_font:
+      google: Ubuntu
+    heading_font:
+      google: Fira Sans Condensed
+    code_font:
+      google: Ubuntu Mono

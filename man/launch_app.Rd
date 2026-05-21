@@ -4,14 +4,9 @@
 \alias{launch_app}
 \title{Launch the shokenuse Shiny dashboard}
 \usage{
-launch_app(claude_dirs = list(local = "~/.claude/projects"), ...)
+launch_app(...)
 }
 \arguments{
-\item{claude_dirs}{Named list mapping machine labels to Claude project
-directories. Defaults to `list(local = "~/.claude/projects")`.
-Add a second entry to show usage from another machine, e.g.:
-`list(macOS = "~/.claude/projects", Ubuntu = "/mnt/ubuntu/.claude/projects")`.}
-
 \item{...}{Additional arguments passed to [shiny::shinyApp()].}
 }
 \value{
@@ -19,5 +14,6 @@ A Shiny app object (invisibly when run interactively).
 }
 \description{
 Convenience wrapper around [shiny::shinyApp()] that wires together
-[app_ui()] and [app_server()].
+[app_ui()] and [app_server()]. Load data via the Data tab using an
+Anthropic Admin API key or by uploading a CSV file.
 }

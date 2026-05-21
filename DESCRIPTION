@@ -7,11 +7,12 @@ Authors@R: person(
     role = c("aut", "cre"),
     email = "mjfrigaard@pm.me"
   )
-Description: Reads and aggregates LLM token usage from Claude Code (JSONL
-    project files), with support for manual CSV imports from other sources
-    (Anthropic Console, Posit AI assistants). Provides a Shiny dashboard for
-    exploring total usage, cost estimates, trends over time, and breakdowns
-    by source, project, and model.
+Description: Tracks Anthropic API token usage and estimated costs across
+    models, projects, and sessions. Fetches data from the Anthropic Admin API
+    or imports CSV exports from the Anthropic Console and other tools.
+    Provides a Shiny dashboard for exploring daily token volume, cost
+    breakdowns by model and project, session-level outlier detection, and
+    side-by-side comparison across multiple API keys or data sources.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -29,6 +30,7 @@ Imports:
     lubridate,
     rlang,
     scales,
+    thematic,
     tibble,
     tidyr,
     vroom
@@ -37,8 +39,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    thematic,
     withr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
+URL: https://mjfrigaard.github.io/shokenuse/

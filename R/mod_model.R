@@ -74,7 +74,7 @@ mod_model_server <- function(id, filtered_rv) {
         ) +
         ggplot2::labs(x = "Tokens", y = NULL, fill = "Type") +
         ggplot2::theme_minimal(base_size = 13)
-    })
+    }, res = 96)
 
     output$plot_model_cost <- shiny::renderPlot({
       df <- filtered_rv()
@@ -92,7 +92,7 @@ mod_model_server <- function(id, filtered_rv) {
         ggplot2::scale_x_continuous(labels = scales::dollar) +
         ggplot2::labs(x = "Estimated cost (USD)", y = NULL) +
         ggplot2::theme_minimal(base_size = 13)
-    })
+    }, res = 96)
 
     output$plot_model_time <- shiny::renderPlot({
       df <- filtered_rv()
@@ -118,6 +118,6 @@ mod_model_server <- function(id, filtered_rv) {
         ggplot2::labs(x = NULL, y = "Tokens (input + output)", color = "Model") +
         ggplot2::theme_minimal(base_size = 13) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
-    })
+    }, res = 96)
   })
 }

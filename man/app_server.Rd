@@ -4,17 +4,14 @@
 \alias{app_server}
 \title{Primary application server}
 \usage{
-app_server(claude_dirs = list(local = "~/.claude/projects"))
-}
-\arguments{
-\item{claude_dirs}{Named list mapping machine labels to Claude project
-directories. Default: `list(local = "~/.claude/projects")`.}
+app_server()
 }
 \value{
 A Shiny server function.
 }
 \description{
-Loads usage data, wires together all module servers, and passes reactive
-data between them. The overview module owns the filter state and returns
-the `filtered` reactive consumed by all other modules.
+Wires together all module servers and passes reactive data between them.
+The overview module owns the filter state and returns the `filtered`
+reactive consumed by all other modules. Data is loaded exclusively via
+the Data tab (Admin API fetch or CSV upload).
 }

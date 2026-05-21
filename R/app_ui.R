@@ -17,6 +17,11 @@ app_ui <- function() {
     window_title = "shokenuse — LLM Token Usage",
 
     bslib::nav_panel(
+      "Data",
+      icon = bsicons::bs_icon("database"),
+      mod_data_ui("data")
+    ),
+    bslib::nav_panel(
       "Overview",
       icon = bsicons::bs_icon("bar-chart-line"),
       mod_overview_ui("overview")
@@ -37,30 +42,11 @@ app_ui <- function() {
       mod_sessions_ui("sessions")
     ),
     bslib::nav_panel(
-      "Upload Data",
-      icon = bsicons::bs_icon("cloud-upload"),
-      mod_upload_ui("upload")
-    ),
-    bslib::nav_panel(
       "Pricing",
       icon = bsicons::bs_icon("table"),
       mod_pricing_ui("pricing")
     ),
-    bslib::nav_panel(
-      "API Data",
-      icon = bsicons::bs_icon("cloud-download"),
-      mod_api_ui("api")
-    ),
 
-    bslib::nav_spacer(),
-    bslib::nav_item(
-      shiny::actionButton(
-        "refresh_btn",
-        label = NULL,
-        icon  = shiny::icon("rotate"),
-        class = "btn-sm btn-outline-secondary",
-        title = "Reload data from disk"
-      )
-    )
+    bslib::nav_spacer()
   )
 }

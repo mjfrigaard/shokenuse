@@ -22,8 +22,7 @@ util_fetch_usage(
 \item{bucket_width}{Aggregation interval: `"1d"`, `"1h"`, or `"1m"`.}
 
 \item{group_by}{Character vector of dimensions to group by. Valid values:
-`"model"`, `"workspace_id"`, `"api_key_id"`, `"service_tier"`,
-`"inference_geo"`.}
+`"model"`, `"workspace_id"`, `"api_key_id"`, `"service_tier"`.}
 
 \item{models}{Character vector of model names to filter; empty = all.}
 
@@ -32,12 +31,18 @@ util_fetch_usage(
 \item{max_pages}{Maximum pagination pages to fetch (safety cap).}
 }
 \value{
-Tibble with `timestamp_bucket`, `bucket_width`, any `group_by`
-  columns, `input_tokens`, `output_tokens`, `cache_creation_input_tokens`,
-  `cache_read_input_tokens`, `n_requests`.
+Tibble with `timestamp_bucket`, `input_tokens`, `output_tokens`,
+  `cache_creation_input_tokens`, `cache_read_input_tokens`, and any
+  grouping columns present in the response.
 }
 \description{
 Calls `GET /v1/organizations/usage_report/messages`. Handles pagination
 automatically. Requires an Admin API key from an organization account —
 not available for individual (personal) accounts.
+}
+\details{
+Response structure: top-level `data` array of time buckets, each with
+`starting_at`, `ending_at`, and a nested `results` array of records.
+Token counts use `uncached_input_tokens` and a nested `cache_creation`
+object rather than a flat `input_tokens` field.
 }
