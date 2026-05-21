@@ -1,0 +1,10 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  api-usage: api-usage.html
+  user-guide: user-guide.html
+last_built: 2026-05-21T22:11Z
+urls:
+  reference: https://mjfrigaard.github.io/shokenuse/reference
+  article: https://mjfrigaard.github.io/shokenuse/articles
