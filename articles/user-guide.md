@@ -316,8 +316,8 @@ synthetic <- dplyr::bind_rows(
 
 util_summarise_sessions(synthetic) |>
   dplyr::select(session_id, models, n_requests, total_tokens, cost_usd, outlier)
-#> INFO [2026-05-21 22:11:14] Summarising 10 row(s) into sessions
-#> INFO [2026-05-21 22:11:14] Sessions: 10 total, 1 outlier(s)
+#> INFO [2026-05-22 16:12:08] Summarising 10 row(s) into sessions
+#> INFO [2026-05-22 16:12:08] Sessions: 10 total, 1 outlier(s)
 #> # A tibble: 10 × 6
 #>    session_id  models          n_requests total_tokens cost_usd outlier
 #>    <chr>       <chr>                <int>        <int>    <dbl> <lgl>  

@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   api-usage: api-usage.html
   user-guide: user-guide.html
-last_built: 2026-05-21T22:11Z
+last_built: 2026-05-22T16:11Z
 urls:
   reference: https://mjfrigaard.github.io/shokenuse/reference
   article: https://mjfrigaard.github.io/shokenuse/articles

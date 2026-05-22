@@ -52,6 +52,8 @@
   : Fetch cost data from the Anthropic Admin API
 - [`util_fetch_usage()`](https://mjfrigaard.github.io/shokenuse/reference/util_fetch_usage.md)
   : Fetch token usage from the Anthropic Admin API
+- [`util_label_api_source()`](https://mjfrigaard.github.io/shokenuse/reference/util_label_api_source.md)
+  : Attach friendly source labels to Admin API usage rows
 - [`util_log_threshold()`](https://mjfrigaard.github.io/shokenuse/reference/util_log_threshold.md)
   : Set the logging threshold for shokenuse
 - [`util_model_pricing()`](https://mjfrigaard.github.io/shokenuse/reference/util_model_pricing.md)
