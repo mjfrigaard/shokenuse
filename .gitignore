@@ -3,4 +3,8 @@
 .RData
 .Ruserdata
 .positai
+.claude
 docs
+
+/.quarto/
+**/*.quarto_ipynb

@@ -143,13 +143,16 @@ mod_data_server <- function(id, raw_usage_rv) {
         namespace = "shokenuse"
       )
       result <- tryCatch(
-        util_fetch_usage(
-          starting_at  = start,
-          ending_at    = end,
-          bucket_width = "1d",
-          group_by     = "model",
-          api_key      = input$admin_key
-        ),
+        {
+          raw <- util_fetch_usage(
+            starting_at  = start,
+            ending_at    = end,
+            bucket_width = "1d",
+            group_by     = c("model", "api_key_id"),
+            api_key      = input$admin_key
+          )
+          util_label_api_source(raw, api_key = input$admin_key)
+        },
         error = function(e) {
           logger::log_error(
             "Admin API fetch failed: {conditionMessage(e)}",
@@ -184,10 +187,12 @@ mod_data_server <- function(id, raw_usage_rv) {
 
       machine_label <- if (nzchar(trimws(input$api_machine))) trimws(input$api_machine) else "api"
 
+      row_source <- if ("source" %in% names(d)) d$source else "anthropic_api"
+
       new_rows <- tibble::tibble(
         timestamp             = as.POSIXct(d$timestamp_bucket, tz = "UTC"),
         machine               = machine_label,
-        source                = "anthropic_api",
+        source                = row_source,
         project               = NA_character_,
         session_id            = NA_character_,
         model                 = d$model,

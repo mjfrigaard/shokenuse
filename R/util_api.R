@@ -140,6 +140,96 @@ util_fetch_cost <- function(
 }
 
 
+# ── API key labelling ─────────────────────────────────────────────────────────
+
+# Maintainer's API key name → source label mapping. Used as the default for
+# `util_label_api_source()`; override per call with the `labels` argument.
+.api_source_labels <- c(
+  "sys76-positron-key"              = "positron (System76)",
+  "claude_code_key_mjfrigaard_apaw" = "positron (macOS)"
+)
+
+
+#' Attach friendly source labels to Admin API usage rows
+#'
+#' Calls `GET /v1/organizations/api_keys` to map each opaque `api_key_id`
+#' returned by [util_fetch_usage()] (when grouped by `api_key_id`) to the
+#' API key name set in the Anthropic Console, then applies a `name → label`
+#' lookup to populate a `source` column matching the JSONL pathway. Key names
+#' not present in `labels` fall through to the raw key name; rows with no
+#' matching key fall back to `"anthropic_api"`.
+#'
+#' @param usage Tibble from [util_fetch_usage()] with an `api_key_id` column.
+#' @param labels Named character vector: API key names → source labels.
+#' @param api_key Admin API key. Defaults to `ANTHROPIC_ADMIN_KEY` env var.
+#' @param max_pages Maximum pagination pages when fetching the key list.
+#' @return `usage` with `api_key_name` and `source` columns appended.
+#' @export
+util_label_api_source <- function(
+    usage,
+    labels    = .api_source_labels,
+    api_key   = Sys.getenv("ANTHROPIC_ADMIN_KEY"),
+    max_pages = 10L) {
+
+  if (!"api_key_id" %in% names(usage)) {
+    logger::log_warn(
+      "`usage` has no `api_key_id` column — refetch with group_by = 'api_key_id'",
+      namespace = "shokenuse"
+    )
+    return(usage)
+  }
+  .require_api_key(api_key)
+
+  keys_tbl <- .fetch_api_keys(api_key, max_pages = max_pages)
+  logger::log_info(
+    "Fetched {nrow(keys_tbl)} API key name(s) from org",
+    namespace = "shokenuse"
+  )
+
+  result <- usage |>
+    dplyr::left_join(keys_tbl, by = "api_key_id") |>
+    dplyr::mutate(
+      source = unname(labels[api_key_name]),
+      source = dplyr::coalesce(source, api_key_name, "anthropic_api")
+    )
+
+  logger::log_debug(
+    "Labelled {nrow(result)} usage row(s); sources: {paste(unique(result$source), collapse = ', ')}",
+    namespace = "shokenuse"
+  )
+  result
+}
+
+
+.fetch_api_keys <- function(api_key, max_pages = 10L) {
+  base_url <- "https://api.anthropic.com/v1/organizations/api_keys"
+
+  pages <- tryCatch(
+    .paginate_api(base_url, list(), api_key, max_pages),
+    error = function(e) {
+      logger::log_error(
+        "API key list request failed: {conditionMessage(e)}",
+        namespace = "shokenuse"
+      )
+      rlang::abort(
+        paste("util_label_api_source failed:", conditionMessage(e)),
+        parent = e
+      )
+    }
+  )
+
+  rows <- do.call(c, lapply(pages, function(p) p[["data"]] %||% list()))
+  if (length(rows) == 0) {
+    return(tibble::tibble(api_key_id = character(), api_key_name = character()))
+  }
+
+  tibble::tibble(
+    api_key_id   = vapply(rows, function(k) k[["id"]]   %||% NA_character_, character(1)),
+    api_key_name = vapply(rows, function(k) k[["name"]] %||% NA_character_, character(1))
+  )
+}
+
+
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 .require_api_key <- function(key) {
