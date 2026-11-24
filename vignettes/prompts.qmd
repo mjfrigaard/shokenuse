@@ -1,0 +1,43 @@
+---
+title: "Prompts tab"
+vignette: >
+  %\VignetteIndexEntry{Prompts tab}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+The Prompts tab finds the prompts that used the most tokens or cost the most.
+
+## Searching and ranking
+
+| Input | Description |
+|---|---|
+| Prompt contains | Keeps prompts containing this text (case insensitive). |
+| Rank by | Tokens or cost. |
+| Rows | Number of prompts in the table. |
+
+## Chart and table
+
+The histogram shows tokens or cost per prompt on a log scale. The table lists the largest prompts with their time, project, text, tokens, and cost.
+
+A prompt's tokens include every model call made while answering it, subagents included. A short prompt that starts a long task can therefore be the largest.
+
+The code below draws the histogram and lists the 10 most expensive prompts:
+
+```{r}
+#| label: prompts
+metrics <- util_read_token_metrics()
+util_plot_prompts(metrics, "tokens")
+dplyr::slice_max(metrics, cost, n = 10)
+```

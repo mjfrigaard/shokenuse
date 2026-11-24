@@ -1,0 +1,8 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-03T11:46:49","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Write testthat tests for the session summary helper",318431,0.4129
+"2026-11-03T11:52:47","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Refactor the plot helpers into one file",182394,0.2726
+"2026-11-03T12:00:32","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Summarise the open tasks for this project",469643,0.485
+"2026-11-03T12:06:45","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Explain what cache read tokens are",427530,0.466
+"2026-11-03T12:21:40","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Explain what cache read tokens are",116993,0.1731
+"2026-11-03T12:39:01","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Rename the cost column and update the docs",257333,0.3565
+"2026-11-03T12:42:26","051a83a4-0000-4000-8000-000000000021","notes","/Users/demo/notes",,"Fix the broken link in the README",1358404,1.4513

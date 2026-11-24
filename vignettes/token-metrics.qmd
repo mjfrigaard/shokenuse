@@ -1,0 +1,199 @@
+---
+title: "How the token-metrics files are made"
+vignette: >
+  %\VignetteIndexEntry{How the token-metrics files are made}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+shokenuse does not talk to any API. It reads CSV files written by `token-metrics.py`, a small Python script (standard library only) that turns Claude Code's local transcripts into one row per prompt. This article walks through what the script reads, how it counts tokens and cost, and how it is scheduled.
+
+## From transcripts to the dashboard
+
+The diagram below shows the six steps the script takes on each run. The sections after it cover each step in order.
+
+```{mermaid}
+%%| eval: true
+%%| fig-height: 9
+%%| fig-cap: 'From transcripts to daily CSVs'
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'monospace', 'fontSize':'16px', 'darkMode':false}}}%%
+
+flowchart TD
+    cc(["<strong>Claude Code</strong>"]) --> tr[("<code>~/.claude/projects/</code><br/>session and subagent transcripts")]
+    subgraph py["<strong>token-metrics.py</strong>"]
+        p1("i. Find prompts")
+        p2("ii. Collect model calls")
+        p3("iii. Price each call")
+        p4("iv. Assign calls to prompts")
+        p5("v. Add project and remote")
+        p6("vi. Write one file per day")
+        p1 --> p2 --> p3 --> p4 --> p5 --> p6
+    end
+    ld(["<strong>launchd</strong><br/>hourly and at login"]) -.-> p1
+    tr --> p1
+    p6 --> csv[("<code>~/.cache/token-metrics/</code><br/>YYYY-MM-DD-token-metrics.csv")]
+    csv --> app(["<strong>shokenuse</strong>"])
+
+    style py fill:#FFFFFF,color:#000000,stroke:#333,stroke-width:1px,rx:10,ry:10
+    style p1 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style p2 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style p3 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style p4 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style p5 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style p6 fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+```
+
+## Input: Claude Code transcripts
+
+Claude Code saves every session as a JSON Lines file under `~/.claude/projects/`, one folder per working directory. Subagents (tasks a session hands off) get their own files in a `subagents/` folder inside the session folder. The script reads both:
+
+```
+~/.claude/projects/<folder>/<session>.jsonl
+~/.claude/projects/<folder>/<session>/subagents/<agent>.jsonl
+```
+
+Each line is one record. Two kinds of record matter:
+
+| Record | Used for |
+|---|---|
+| `type: "user"` | The prompt: its text, time, session id, and working directory (`cwd`). |
+| `type: "assistant"` with `message.usage` | One model call: its model name and token counts. |
+
+## Step 1: find the prompts
+
+Not every `user` record is something you typed. The script skips records that are:
+
+*   meta, sidechain (subagent), or compaction summary records
+*   tool results (the output of a tool Claude ran)
+*   local command output and task notifications
+*   empty
+
+Slash commands are kept, shown as the command name plus its arguments (for example `review src/app.R`). Line breaks are collapsed and the text is cut to 140 characters. Each prompt is stored once by its `uuid`.
+
+## Step 2: collect the model calls
+
+Every `assistant` record with a `usage` block is one model call. The same call can appear more than once in a transcript, for example when a response streams in parts or a session is resumed. The script keeps one copy of each call, matched on its message id and request id.
+
+For each call the script records its time, its tokens, and its cost.
+
+Tokens are the sum of four counts:
+
+```
+input_tokens + output_tokens + cache_creation_input_tokens + cache_read_input_tokens
+```
+
+Cache reads are usually most of the total, because each turn reads the whole conversation again from the prompt cache.
+
+## Step 3: price each call
+
+Cost uses API list prices in USD per million tokens. The `RATES` table at the top of the script holds the input, output, and cache read price for each model. Date suffixes on model names (`-20250514`) are dropped before the lookup. For one call:
+
+```
+cost = ( input       * input_rate
+       + output      * output_rate
+       + cache_read  * cache_read_rate
+       + 5m_writes   * input_rate * 1.25
+       + 1h_writes   * input_rate * 2 ) / 1e6
+```
+
+A few rules adjust this:
+
+*   Cache writes are split into 5 minute and 1 hour writes when the transcript reports them; otherwise all writes are priced as 5 minute writes.
+*   Haiku 5.5 calls over 100K tokens use the long context rates.
+*   Calls made in fast mode (`usage.speed == "fast"`) cost twice as much.
+*   `<synthetic>` records (local error messages, no API call) cost nothing.
+*   A model missing from `RATES` has no price, so the prompt's `cost` is left blank. Add new models to `RATES` when they appear.
+
+This is the API equivalent cost, not what a Claude subscription bills. On its first run the script's total ($130.59 over 21 days) was within 0.3% of Claude Code's own cost total.
+
+## Step 4: assign calls to prompts
+
+Within a session, prompts are sorted by time. Each model call belongs to the latest prompt sent at or before the call. That prompt's `tokens` and `cost` are the sums over all its calls, including calls made by any subagents it started (subagent records share the parent's session id). Calls made before the first prompt of a session are dropped.
+
+## Step 5: add project and remote
+
+For each working directory the script asks git for the repository root and the `origin` remote:
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+git -C <directory> rev-parse --show-toplevel
+git -C <directory> remote get-url origin
+```
+
+`project` is the name of the repository root, or the folder name when the directory is not in a git repository. `url` is the remote, or blank. Results are cached per directory.
+
+## Step 6: write one file per day
+
+Prompts are grouped by their local date and written to `~/.cache/token-metrics/YYYY-MM-DD-token-metrics.csv`, sorted by time. Each file is written to a `.tmp` file first and then renamed, so the dashboard never reads a half written file.
+
+| Column | Meaning |
+|---|---|
+| `date` | Local time the prompt was sent (`YYYY-MM-DDTHH:MM:SS`). |
+| `session` | Session id. `claude --resume <id>` reopens it. |
+| `project` | Git repository name of the working directory (else the folder name). |
+| `directory` | Working directory of the prompt. |
+| `url` | Git remote `origin` (blank if none). |
+| `prompt` | First 140 characters, line breaks removed. |
+| `tokens` | Input, output, cache write, and cache read tokens for every call answering the prompt. |
+| `cost` | USD at API list prices (blank if a model has no price). |
+
+Claude Code deletes transcripts after about 30 days (the `cleanupPeriodDays` setting). To keep that history, the script only rewrites the last 7 days. Older days are written only when their file does not exist yet. `--all` rewrites every day it can still find.
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+python3 token-metrics.py          # rewrite the last 7 days
+python3 token-metrics.py --all    # rewrite every day found
+```
+
+## Scheduling
+
+On macOS a launchd agent runs the script every hour and at login:
+
+```xml
+<key>ProgramArguments</key>
+<array>
+  <string>/usr/local/bin/python3</string>
+  <string>/path/to/token-metrics.py</string>
+</array>
+<key>StartInterval</key>
+<integer>3600</integer>
+<key>RunAtLoad</key>
+<true/>
+```
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+launchctl kickstart gui/$(id -u)/<label>    # run now
+launchctl bootout gui/$(id -u)/<label>      # unload
+```
+
+Each run prints one line (`wrote N file(s)`) to the agent's log.
+
+## Reading the files in R
+
+`util_read_token_metrics()` reads the whole folder, the same way the dashboard does:
+
+```{r}
+#| label: read
+library(shokenuse)
+
+metrics <- util_read_token_metrics("~/.cache/token-metrics")
+util_summarise_metrics(metrics, by = "project")
+```

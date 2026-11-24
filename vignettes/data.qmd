@@ -1,0 +1,58 @@
+---
+title: "Data tab"
+vignette: >
+  %\VignetteIndexEntry{Data tab}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+The Data tab loads the token-metrics files. Every other tab reads what this tab loads, so start here when a number looks wrong.
+
+## Loading files
+
+| Input | Description |
+|---|---|
+| Token-metrics folder | Folder of daily `YYYY-MM-DD-token-metrics.csv` files. Defaults to the `dir` argument of `launch_app()` (`~/.cache/token-metrics`). |
+| Reload folder | Reads the folder again. The folder is also read once when the app starts. |
+| Add token-metrics CSVs | Upload one or more files, for example from another computer. Uploaded rows are added to the folder rows and duplicate rows are dropped. |
+
+Every file must have the columns `date`, `session`, `project`, `directory`, `url`, `prompt`, `tokens`, and `cost`. A file without them shows an error notification and is skipped. See `vignette("token-metrics")` for what each column means and how the files are made.
+
+## Checking what loaded
+
+A status line gives the number of prompts, sessions, and projects, and the first and last day. The table below it lists the 20 latest prompts.
+
+## Reading files in R
+
+`util_read_token_metrics()` does the same read as the tab. It takes a folder or a vector of files:
+
+```{r}
+#| label: read
+metrics <- util_read_token_metrics("~/.cache/token-metrics")
+
+# Or a set of files
+files <- fs::dir_ls("~/.cache/token-metrics", glob = "*2026-11-2*")
+util_read_token_metrics(files)
+```
+
+The result has one more column than the files: `day`, the local date of `date`. Blank `url` and `cost` values become `NA`. Duplicate rows are removed, and rows are sorted by time.
+
+## Filters
+
+The sidebar filters apply to every tab after Data:
+
+| Filter | Description |
+|---|---|
+| Date range | Set to the first and last day in the data whenever data loads. |
+| Projects | Leave empty for all projects, or pick one or more. |

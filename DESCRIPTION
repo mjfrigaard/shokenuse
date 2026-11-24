@@ -1,18 +1,17 @@
 Package: shokenuse
 Type: Package
-Title: Visualize LLM Token Usage Across Tools and Machines
+Title: Visualize Claude Code Token Usage
 Version: 0.1.0
 Authors@R: person(
     "Martin", "Frigaard",
     role = c("aut", "cre"),
     email = "mjfrigaard@pm.me"
   )
-Description: Tracks Anthropic API token usage and estimated costs across
-    models, projects, and sessions. Fetches data from the Anthropic Admin API
-    or imports CSV exports from the Anthropic Console and other tools.
-    Provides a Shiny dashboard for exploring daily token volume, cost
-    breakdowns by model and project, session-level outlier detection, and
-    side-by-side comparison across multiple API keys or data sources.
+Description: A Shiny dashboard for the daily token-metrics CSV files
+    written from Claude Code transcripts (one row per prompt with its
+    session, project, directory, git remote, prompt text, tokens, and API
+    list price cost). Shows daily token volume and cost, totals by project,
+    session-level outlier detection, and the largest prompts.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -20,27 +19,21 @@ Imports:
     shiny (>= 1.8.0),
     bslib (>= 0.7.0),
     bsicons,
-    cli,
     dplyr,
     fs,
     ggplot2,
-    httr2,
-    jsonlite,
     logger,
-    lubridate,
     rlang,
     scales,
     thematic,
     tibble,
-    tidyr,
     vroom
 Suggests:
-    httptest2,
     knitr,
-    rmarkdown,
+    quarto,
     testthat (>= 3.0.0),
     withr
-VignetteBuilder: knitr
+VignetteBuilder: quarto
 Config/testthat/edition: 3
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1
 URL: https://mjfrigaard.github.io/shokenuse/

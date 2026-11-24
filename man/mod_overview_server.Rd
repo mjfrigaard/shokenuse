@@ -4,17 +4,13 @@
 \alias{mod_overview_server}
 \title{Overview tab module server}
 \usage{
-mod_overview_server(id, raw_usage_rv)
+mod_overview_server(id, filtered)
 }
 \arguments{
 \item{id}{Shiny module ID.}
 
-\item{raw_usage_rv}{`reactiveVal` holding the full usage tibble.}
-}
-\value{
-A reactive tibble of filtered usage data.
+\item{filtered}{Reactive tibble from [mod_filters_server()].}
 }
 \description{
-Owns filter state and computes the filtered reactive returned to the main
-server for use by all other modules.
+Overview tab module server
 }

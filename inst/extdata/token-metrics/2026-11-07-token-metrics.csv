@@ -1,0 +1,3 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-07T11:22:33","0304f623-0000-4000-8000-000000000061","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Draft a post about caching prompts in long sessions",112469,0.1646
+"2026-11-07T11:31:35","0304f623-0000-4000-8000-000000000061","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Explain what cache read tokens are",46324,0.0445

@@ -1,0 +1,55 @@
+---
+title: "Sessions tab"
+vignette: >
+  %\VignetteIndexEntry{Sessions tab}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+The Sessions tab summarises each Claude Code session. It is the fastest way to find the one session that cost more than the rest.
+
+## Value boxes
+
+| Box | What it shows |
+|---|---|
+| Sessions | Number of sessions. |
+| Median cost / session | Half of the sessions cost less than this. |
+| Most expensive | Cost of the most expensive session. |
+| Outliers | Sessions costing more than the mean plus two standard deviations. |
+
+## Chart and table
+
+The chart shows the 30 most expensive sessions. Each bar is labeled with the first 8 characters of the session id and the project. Outliers are orange.
+
+The table has one row per session:
+
+| Column | Meaning |
+|---|---|
+| Session | Full session id. `claude --resume <session>` reopens it. |
+| Project | Project, or a comma separated list when the session moved between projects. |
+| Start | Time of the first prompt. |
+| Minutes | Time from the first to the last prompt. A resumed session can span days. |
+| Prompts, Tokens, Cost | Totals for the session. |
+| First prompt | Text of the first prompt. |
+
+Export CSV downloads the full table.
+
+The code below builds the same table, draws the chart, and keeps only the outliers:
+
+```{r}
+#| label: sessions
+sessions <- util_summarise_sessions(util_read_token_metrics())
+util_plot_sessions(sessions)
+dplyr::filter(sessions, outlier)
+```

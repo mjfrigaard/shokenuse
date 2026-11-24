@@ -1,0 +1,37 @@
+---
+title: "By Project tab"
+vignette: >
+  %\VignetteIndexEntry{By Project tab}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+The By Project tab compares projects. A project is the git repository of the working directory, or the folder name outside a repository.
+
+## Charts and table
+
+| Output | What it shows |
+|---|---|
+| Tokens by project | Top 20 projects by total tokens. |
+| Cost by project | Top 20 projects by total cost. |
+| Projects table | Every project with its git remote, prompts, sessions, tokens, and cost. |
+
+The code below builds the summary behind the tab and draws the cost chart:
+
+```{r}
+#| label: project
+metrics <- util_read_token_metrics()
+by_project <- util_summarise_metrics(metrics, by = c("project", "url"))
+util_plot_rank(by_project, "project", "cost")
+```

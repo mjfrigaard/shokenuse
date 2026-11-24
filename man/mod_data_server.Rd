@@ -4,12 +4,15 @@
 \alias{mod_data_server}
 \title{Data tab module server}
 \usage{
-mod_data_server(id, raw_usage_rv)
+mod_data_server(id, dir = util_metrics_dir())
 }
 \arguments{
 \item{id}{Shiny module ID.}
 
-\item{raw_usage_rv}{`reactiveVal` holding the full usage tibble.}
+\item{dir}{Default token-metrics folder, used until the folder input is set.}
+}
+\value{
+A reactive tibble from [util_read_token_metrics()].
 }
 \description{
 Data tab module server

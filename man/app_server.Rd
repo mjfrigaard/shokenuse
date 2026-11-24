@@ -4,14 +4,16 @@
 \alias{app_server}
 \title{Primary application server}
 \usage{
-app_server()
+app_server(dir = util_metrics_dir())
+}
+\arguments{
+\item{dir}{Token-metrics folder read at startup.}
 }
 \value{
 A Shiny server function.
 }
 \description{
-Wires together all module servers and passes reactive data between them.
-The overview module owns the filter state and returns the `filtered`
-reactive consumed by all other modules. Data is loaded exclusively via
-the Data tab (Admin API fetch or CSV upload).
+The Data module reads the token-metrics folder, the Filters module
+applies the sidebar filters, and every analysis tab receives the
+filtered reactive.
 }

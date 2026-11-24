@@ -1,0 +1,11 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-06T11:05:51","048c76ce-0000-4000-8000-000000000051","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Add a date range filter to the overview module",1041252,0.9583
+"2026-11-06T11:20:21","048c76ce-0000-4000-8000-000000000051","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Summarise the open tasks for this project",1210770,1.2047
+"2026-11-06T11:22:02","048c76ce-0000-4000-8000-000000000051","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Rename the cost column and update the docs",2751096,3.7858
+"2026-11-06T15:32:15","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Write testthat tests for the session summary helper",420624,0.5974
+"2026-11-06T15:45:48","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Write testthat tests for the session summary helper",760784,1.0742
+"2026-11-06T16:00:06","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Explain what cache read tokens are",102805,0.1562
+"2026-11-06T16:15:27","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Review this diff for bugs",125565,0.1585
+"2026-11-06T16:29:20","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Summarise the open tasks for this project",101096,0.1513
+"2026-11-06T16:35:13","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Fix the broken link in the README",77796,0.0941
+"2026-11-06T16:46:19","012a1dbe-0000-4000-8000-000000000052","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Explain what cache read tokens are",266519,0.2693

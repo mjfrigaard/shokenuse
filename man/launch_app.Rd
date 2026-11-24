@@ -4,16 +4,19 @@
 \alias{launch_app}
 \title{Launch the shokenuse Shiny dashboard}
 \usage{
-launch_app(...)
+launch_app(dir = util_metrics_dir(), options = list())
 }
 \arguments{
-\item{...}{Additional arguments passed to [shiny::shinyApp()].}
+\item{dir}{Folder of daily token-metrics CSVs read at startup. Defaults to
+[util_metrics_dir()]. Use
+`system.file("extdata", "token-metrics", package = "shokenuse")` for the
+example data.}
+
+\item{options}{A list of options passed to [shiny::shinyApp()].}
 }
 \value{
-A Shiny app object (invisibly when run interactively).
+A `shiny.appobj`.
 }
 \description{
-Convenience wrapper around [shiny::shinyApp()] that wires together
-[app_ui()] and [app_server()]. Load data via the Data tab using an
-Anthropic Admin API key or by uploading a CSV file.
+Launch the shokenuse Shiny dashboard
 }

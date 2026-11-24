@@ -1,0 +1,3 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-04T14:32:09","006694e4-0000-4000-8000-000000000031","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Fix the broken link in the README",139784,0.1911
+"2026-11-04T14:34:24","006694e4-0000-4000-8000-000000000031","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Rename the cost column and update the docs",83666,0.0753

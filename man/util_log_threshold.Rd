@@ -14,7 +14,5 @@ util_log_threshold(level = "INFO")
 `NULL` invisibly.
 }
 \description{
-Controls the verbosity of shokenuse log output. Use `"DEBUG"` to see
-per-file and per-request detail; `"INFO"` for normal operation; `"OFF"` to
-silence all output.
+Set the logging threshold for shokenuse
 }

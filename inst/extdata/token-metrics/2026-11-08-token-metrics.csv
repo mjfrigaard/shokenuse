@@ -1,0 +1,6 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-08T16:46:27","021a361e-0000-4000-8000-000000000071","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Add a date range filter to the overview module",288609,0.4466
+"2026-11-08T16:50:47","021a361e-0000-4000-8000-000000000071","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Why does the daily bar chart drop the last day?",393687,0.5987
+"2026-11-08T16:52:48","021a361e-0000-4000-8000-000000000071","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Fix the broken link in the README",168538,0.1678
+"2026-11-08T17:11:54","021a361e-0000-4000-8000-000000000071","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Rename the cost column and update the docs",250013,0.3625
+"2026-11-08T17:22:14","021a361e-0000-4000-8000-000000000071","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Summarise the open tasks for this project",613864,0.7473

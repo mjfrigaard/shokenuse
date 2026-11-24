@@ -1,12 +1,12 @@
 #' Launch the shokenuse Shiny dashboard
 #'
-#' Convenience wrapper around [shiny::shinyApp()] that wires together
-#' [app_ui()] and [app_server()]. Load data via the Data tab using an
-#' Anthropic Admin API key or by uploading a CSV file.
-#'
-#' @param ... Additional arguments passed to [shiny::shinyApp()].
-#' @return A Shiny app object (invisibly when run interactively).
+#' @param dir Folder of daily token-metrics CSVs read at startup. Defaults to
+#'   [util_metrics_dir()]. Use
+#'   `system.file("extdata", "token-metrics", package = "shokenuse")` for the
+#'   example data.
+#' @param options A list of options passed to [shiny::shinyApp()].
+#' @return A `shiny.appobj`.
 #' @export
-launch_app <- function(...) {
-  shiny::shinyApp(ui = app_ui(), server = app_server(), ...)
+launch_app <- function(dir = util_metrics_dir(), options = list()) {
+  shiny::shinyApp(ui = app_ui(dir), server = app_server(dir), options = options)
 }

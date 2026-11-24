@@ -4,11 +4,14 @@
 \alias{app_ui}
 \title{Primary application UI}
 \usage{
-app_ui()
+app_ui(dir = util_metrics_dir())
+}
+\arguments{
+\item{dir}{Default token-metrics folder shown on the Data tab.}
 }
 \value{
 A Shiny UI definition.
 }
 \description{
-Assembles the top-level `bslib::page_navbar` from all module UIs.
+Primary application UI
 }

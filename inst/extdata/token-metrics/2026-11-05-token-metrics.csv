@@ -1,0 +1,6 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-05T11:56:32","03dbbe76-0000-4000-8000-000000000041","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Fix the broken link in the README",268612,0.3425
+"2026-11-05T12:02:56","03dbbe76-0000-4000-8000-000000000041","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Summarise the open tasks for this project",311906,0.398
+"2026-11-05T12:19:46","03dbbe76-0000-4000-8000-000000000041","shokenuse","/Users/demo/projects/shokenuse","https://github.com/demo/shokenuse.git","Why does the daily bar chart drop the last day?",430476,0.3878
+"2026-11-05T15:11:24","02cf96f6-0000-4000-8000-000000000042","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Rename the cost column and update the docs",402810,0.6268
+"2026-11-05T15:28:32","02cf96f6-0000-4000-8000-000000000042","dashboards","/Users/demo/projects/dashboards","https://github.com/demo/dashboards.git","Refactor the plot helpers into one file",308382,0.4611

@@ -1,0 +1,4 @@
+"date","session","project","directory","url","prompt","tokens","cost"
+"2026-11-02T17:26:59","0140d499-0000-4000-8000-000000000011","notes","/Users/demo/notes",,"Explain what cache read tokens are",384783,0.5995
+"2026-11-02T17:38:32","0140d499-0000-4000-8000-000000000011","notes","/Users/demo/notes",,"Write testthat tests for the session summary helper",397671,0.6302
+"2026-11-02T17:40:20","0140d499-0000-4000-8000-000000000011","notes","/Users/demo/notes",,"Why does the daily bar chart drop the last day?",147741,0.1451

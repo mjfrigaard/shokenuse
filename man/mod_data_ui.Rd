@@ -2,16 +2,15 @@
 % Please edit documentation in R/mod_data.R
 \name{mod_data_ui}
 \alias{mod_data_ui}
-\title{Data tab module UI (landing page)}
+\title{Data tab module UI}
 \usage{
-mod_data_ui(id)
+mod_data_ui(id, dir = util_metrics_dir())
 }
 \arguments{
 \item{id}{Shiny module ID.}
+
+\item{dir}{Default token-metrics folder shown in the folder input.}
 }
 \description{
-Primary entry point for loading usage data. Supports fetching via the
-Anthropic Admin API (primary) or uploading a CSV file (alternative).
-Also provides downloadable scripts to convert local Claude Code session
-logs into the expected CSV format.
+Reads the token-metrics folder and accepts uploaded token-metrics CSVs.
 }

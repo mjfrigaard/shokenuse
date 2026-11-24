@@ -4,12 +4,12 @@
 \alias{mod_project_server}
 \title{By Project tab module server}
 \usage{
-mod_project_server(id, filtered_rv)
+mod_project_server(id, filtered)
 }
 \arguments{
 \item{id}{Shiny module ID.}
 
-\item{filtered_rv}{Reactive tibble of filtered usage data.}
+\item{filtered}{Reactive tibble from [mod_filters_server()].}
 }
 \description{
 By Project tab module server

@@ -4,70 +4,34 @@
 #' @export
 mod_sessions_ui <- function(id) {
   ns <- shiny::NS(id)
-  bslib::page_fillable(
+  shiny::tagList(
     bslib::layout_column_wrap(
-      width = "200px",
-      fill  = FALSE,
-      bslib::value_box(
-        title    = "Total Sessions",
-        value    = shiny::textOutput(ns("sess_vb_total"),   inline = TRUE),
-        theme    = "primary",
-        showcase = bsicons::bs_icon("chat-text")
-      ),
-      bslib::value_box(
-        title    = "Median Cost / Session",
-        value    = shiny::textOutput(ns("sess_vb_median"),  inline = TRUE),
-        theme    = "secondary",
-        showcase = bsicons::bs_icon("cash-stack")
-      ),
-      bslib::value_box(
-        title    = "Most Expensive Session",
-        value    = shiny::textOutput(ns("sess_vb_max"),     inline = TRUE),
-        theme    = "warning",
-        showcase = bsicons::bs_icon("exclamation-triangle")
-      ),
-      bslib::value_box(
-        title    = "Outlier Sessions (>2 SD)",
-        value    = shiny::textOutput(ns("sess_vb_outliers"), inline = TRUE),
-        theme    = "danger",
-        showcase = bsicons::bs_icon("graph-up-arrow")
-      )
+      width = "200px", fill = FALSE,
+      .value_box("Sessions", ns("vb_total"), "collection", "primary",
+                 "Distinct session ids in the filtered data."),
+      .value_box("Median cost / session", ns("vb_median"), "cash-stack", "secondary",
+                 "Half of the sessions cost less than this."),
+      .value_box("Most expensive", ns("vb_max"), "exclamation-triangle", "warning",
+                 "Cost of the single most expensive session."),
+      .value_box("Outliers", ns("vb_outliers"), "graph-up-arrow", "danger",
+                 "Sessions costing more than the mean plus two standard deviations.")
     ),
-    bslib::layout_columns(
-      col_widths = c(7, 5),
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header(
-          "Cost per Session",
-          bslib::tooltip(
-            bsicons::bs_icon("info-circle", title = "Chart note"),
-            "Top 40 sessions by cost. Outliers (>2 SD above mean) are highlighted."
-          )
-        ),
-        shiny::plotOutput(ns("plot_sess_cost"), height = "400px")
-      ),
-      bslib::card(
-        full_screen = TRUE,
-        bslib::card_header("Total Tokens per Session"),
-        shiny::plotOutput(ns("plot_sess_tokens"), height = "400px")
-      )
+    bslib::card(
+      full_screen = TRUE,
+      bslib::card_header("Cost per session (top 30)"),
+      shiny::plotOutput(ns("plot"), height = "520px")
     ),
     bslib::card(
       full_screen = TRUE,
       bslib::card_header(
-        "Session Detail Table",
-        shiny::div(
-          class = "ms-auto",
-          shiny::downloadButton(
-            ns("dl_sessions"), "Export CSV",
-            class = "btn-sm btn-outline-secondary"
-          )
-        )
+        class = "d-flex justify-content-between align-items-center",
+        "Sessions",
+        shiny::downloadButton(ns("download"), "Export CSV",
+                              class = "btn-sm btn-outline-secondary")
       ),
-      shiny::div(
-        style = "overflow-x: auto;",
-        shiny::tableOutput(ns("tbl_sessions"))
-      )
+      shiny::p(class = "text-muted small",
+               shiny::tags$code("claude --resume <session>"), " reopens a session."),
+      shiny::div(style = "overflow-x: auto;", shiny::tableOutput(ns("tbl")))
     )
   )
 }
@@ -76,146 +40,47 @@ mod_sessions_ui <- function(id) {
 #' Sessions tab module server
 #'
 #' @param id Shiny module ID.
-#' @param filtered_rv Reactive tibble of filtered usage data.
+#' @param filtered Reactive tibble from [mod_filters_server()].
 #' @export
-mod_sessions_server <- function(id, filtered_rv) {
+mod_sessions_server <- function(id, filtered) {
   shiny::moduleServer(id, function(input, output, session) {
-    logger::log_debug("mod_sessions initialised", namespace = "shokenuse")
 
-    session_summary <- shiny::reactive({
-      df <- filtered_rv()
-      if (nrow(df) == 0) return(NULL)
-      tryCatch(
-        util_summarise_sessions(df),
-        error = function(e) {
-          logger::log_error(
-            "mod_sessions session_summary failed: {conditionMessage(e)}",
-            namespace = "shokenuse"
-          )
-          NULL
-        }
-      )
-    })
+    sessions <- shiny::reactive(util_summarise_sessions(filtered()))
 
-    output$sess_vb_total <- shiny::renderText({
-      s <- session_summary()
-      if (is.null(s)) return("—")
-      scales::comma(nrow(s))
-    })
+    .or_dash <- function(f) {
+      shiny::renderText({
+        s <- sessions()
+        if (nrow(s) == 0) "-" else f(s)
+      })
+    }
 
-    output$sess_vb_median <- shiny::renderText({
-      s <- session_summary()
-      if (is.null(s)) return("—")
-      scales::dollar(stats::median(s$cost_usd), accuracy = 0.001)
-    })
+    output$vb_total    <- .or_dash(function(s) scales::comma(nrow(s)))
+    output$vb_median   <- .or_dash(function(s) scales::dollar(stats::median(s$cost), accuracy = 0.01))
+    output$vb_max      <- .or_dash(function(s) scales::dollar(max(s$cost), accuracy = 0.01))
+    output$vb_outliers <- .or_dash(function(s) scales::comma(sum(s$outlier)))
 
-    output$sess_vb_max <- shiny::renderText({
-      s <- session_summary()
-      if (is.null(s)) return("—")
-      scales::dollar(max(s$cost_usd), accuracy = 0.01)
-    })
+    output$plot <- shiny::renderPlot(util_plot_sessions(sessions()), res = 96)
 
-    output$sess_vb_outliers <- shiny::renderText({
-      s <- session_summary()
-      if (is.null(s)) return("—")
-      scales::comma(sum(s$outlier))
-    })
-
-    output$plot_sess_cost <- shiny::renderPlot({
-      s <- session_summary()
-      if (is.null(s) || nrow(s) == 0) return(.empty_plot())
-
-      top <- dplyr::slice_head(s, n = 40)
-
-      ggplot2::ggplot(top, ggplot2::aes(
-        x    = cost_usd,
-        y    = stats::reorder(session_id, cost_usd),
-        fill = outlier
-      )) +
-        ggplot2::geom_col() +
-        ggplot2::scale_fill_manual(
-          values = c("FALSE" = "#6C63FF", "TRUE" = "#e74c3c"),
-          labels = c("FALSE" = "Normal", "TRUE" = "Outlier (>2 SD)"),
-          name   = NULL
-        ) +
-        ggplot2::scale_x_continuous(labels = scales::dollar) +
-        ggplot2::scale_y_discrete(
-          labels = function(x) ifelse(nchar(x) > 12, paste0(substr(x, 1, 8), "…"), x)
-        ) +
-        ggplot2::labs(x = "Estimated cost (USD)", y = "Session ID") +
-        ggplot2::theme_minimal(base_size = 11) +
-        ggplot2::theme(legend.position = "top")
-    }, res = 96)
-
-    output$plot_sess_tokens <- shiny::renderPlot({
-      s <- session_summary()
-      if (is.null(s) || nrow(s) == 0) return(.empty_plot())
-
-      top <- dplyr::slice_head(s, n = 40)
-
-      top_long <- top |>
-        tidyr::pivot_longer(
-          cols      = c(input_tokens, output_tokens,
-                        cache_creation_tokens, cache_read_tokens),
-          names_to  = "token_type",
-          values_to = "tokens"
-        ) |>
-        dplyr::mutate(token_type = factor(
-          token_type,
-          levels = c("input_tokens", "output_tokens",
-                     "cache_creation_tokens", "cache_read_tokens"),
-          labels = c("Input", "Output", "Cache write", "Cache read")
-        ))
-
-      ggplot2::ggplot(top_long, ggplot2::aes(
-        x    = tokens,
-        y    = stats::reorder(session_id, tokens),
-        fill = token_type
-      )) +
-        ggplot2::geom_col() +
-        ggplot2::scale_x_continuous(
-          labels = scales::label_number(scale_cut = scales::cut_short_scale())
-        ) +
-        ggplot2::scale_y_discrete(
-          labels = function(x) ifelse(nchar(x) > 12, paste0(substr(x, 1, 8), "…"), x)
-        ) +
-        ggplot2::labs(x = "Tokens", y = "Session ID", fill = "Type") +
-        ggplot2::theme_minimal(base_size = 11) +
-        ggplot2::theme(legend.position = "top")
-    }, res = 96)
-
-    output$tbl_sessions <- shiny::renderTable({
-      s <- session_summary()
-      if (is.null(s)) return(data.frame(Status = "No data."))
-
+    output$tbl <- shiny::renderTable({
+      s <- sessions()
+      if (nrow(s) == 0) return(NULL)
       s |>
-        dplyr::mutate(
-          session_id   = paste0(substr(session_id, 1, 8), "…"),
-          cost_usd     = scales::dollar(cost_usd, accuracy = 0.001),
-          total_tokens = scales::comma(total_tokens),
-          duration_min = round(duration_min, 1),
-          outlier      = ifelse(outlier, "⚠ yes", "")
-        ) |>
-        dplyr::select(
-          Date             = date,
-          Session          = session_id,
-          Project          = project,
-          Machine          = machine,
-          Models           = models,
-          Requests         = n_requests,
-          "Total tokens"   = total_tokens,
-          "Cost (USD)"     = cost_usd,
-          "Duration (min)" = duration_min,
-          Outlier          = outlier
+        dplyr::transmute(
+          Session        = session,
+          Project        = project,
+          Start          = format(start, "%Y-%m-%d %H:%M"),
+          Minutes        = scales::comma(minutes, accuracy = 1),
+          Prompts        = prompts,
+          Tokens         = scales::comma(tokens),
+          "Cost (USD)"   = scales::dollar(cost, accuracy = 0.01),
+          "First prompt" = first_prompt,
+          Outlier        = ifelse(outlier, "yes", "")
         )
-    }, striped = TRUE, hover = TRUE, bordered = TRUE, spacing = "s", na = "—")
+    }, striped = TRUE, hover = TRUE, spacing = "s")
 
-    output$dl_sessions <- shiny::downloadHandler(
+    output$download <- shiny::downloadHandler(
       filename = function() paste0("sessions-", Sys.Date(), ".csv"),
-      content  = function(file) {
-        s <- session_summary()
-        utils::write.csv(if (is.null(s)) data.frame() else s, file, row.names = FALSE)
-      }
+      content  = function(file) utils::write.csv(sessions(), file, row.names = FALSE)
     )
   })
 }

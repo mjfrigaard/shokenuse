@@ -1,0 +1,47 @@
+---
+title: "Overview tab"
+vignette: >
+  %\VignetteIndexEntry{Overview tab}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+The Overview tab answers the first question: how much did I use? It gives totals for the filtered data and a chart of each day.
+
+## Value boxes
+
+| Box | What it shows |
+|------------------------------------|------------------------------------|
+| Tokens | Sum of `tokens`. Cache reads are most of this. |
+| Cost (USD) | Sum of `cost`, ignoring blank costs. API list price equivalent, not a subscription bill. |
+| Prompts | Number of rows (one per prompt). |
+| Sessions | Number of distinct `session` ids. |
+| Cost / prompt | Mean `cost` per prompt. |
+
+## Daily usage by project
+
+The chart stacks tokens or cost for each day by project. The switch in the card header picks the measure. The 8 projects with the most tokens get their own color; the rest are grouped as `other`.
+
+The code below draws the same chart and returns the data behind it:
+
+```{r}
+#| label: daily
+metrics <- util_read_token_metrics()
+util_plot_daily(metrics, "cost")
+
+# The data behind the chart
+metrics |>
+  util_lump_projects(n = 8) |>
+  util_summarise_metrics(by = c("day", "project"))
+```

@@ -1,0 +1,129 @@
+---
+title: "User guide"
+vignette: >
+  %\VignetteIndexEntry{User guide}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+shokenuse shows where your Claude Code tokens and cost go: by day, by project, by session, and by prompt. In this guide I'll cover how to launch the app, where its data comes from, and how the pieces fit together.
+
+## Launching the app
+
+`launch_app()` reads `~/.cache/token-metrics` by default. Pass `dir` to read another folder, or the example data that ships with the package:
+
+```{r}
+#| label: launch
+library(shokenuse)
+
+launch_app()                                  # reads ~/.cache/token-metrics
+launch_app(dir = "/path/to/token-metrics")    # another folder
+
+# Example data shipped with the package
+launch_app(dir = system.file("extdata", "token-metrics", package = "shokenuse"))
+```
+
+The example data is made up: 7 days, 4 projects, and one expensive session on 2026-11-06.
+
+## Where does the data come from?
+
+The app never reads Claude Code's transcripts directly. `token-metrics.py` reads them from `~/.claude/projects/` every hour and writes one CSV per day, with one row per prompt. The app reads those CSVs. `vignette("token-metrics")` explains the script in detail.
+
+```{mermaid}
+%%| eval: true
+%%| fig-height: 6
+%%| fig-cap: 'Data pipeline'
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'monospace', 'fontSize':'16px', 'darkMode':false}}}%%
+
+flowchart TD
+    cc(["<strong>Claude Code</strong>"]) --> tr[("transcripts<br/><code>~/.claude/projects/</code>")]
+    tr --> py("<code>token-metrics.py</code><br/>hourly")
+    py --> csv[("daily CSVs<br/><code>~/.cache/token-metrics/</code>")]
+    csv --> rd[["<code>util_read_token_metrics()</code>"]]
+    rd --> app(["<strong>shokenuse</strong><br/>Overview, By Project, Sessions, Prompts"])
+
+    style py fill:#4CBB9D,color:#FFFFFF,rx:5,ry:5
+    style rd fill:#4CBB9D,color:#FFFFFF
+```
+
+## Tabs
+
+The app has five tabs. Each one has its own article:
+
+| Tab | Description |
+|---|---|
+| Data | Folder path, reload, and upload; latest prompts. |
+| Overview | Totals and daily tokens or cost by project. |
+| By Project | Tokens and cost per project, with git remotes. |
+| Sessions | One row per session, outliers flagged, CSV export. |
+| Prompts | Search and rank prompts by tokens or cost. |
+
+The sidebar date range and project filters apply to every tab after Data.
+
+## Architecture
+
+The diagram below shows how the modules share data. The Data module reads the folder and any uploads into one `metrics` reactive. The Filters module applies the sidebar filters to `metrics` and passes the result, `filtered`, to every tab module. Each tab module calls the `util_*` functions to summarise and plot.
+
+```{mermaid}
+%%| eval: true
+%%| fig-height: 8
+%%| fig-cap: 'Module and reactive flow'
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'monospace', 'fontSize':'16px', 'darkMode':false}}}%%
+
+flowchart TD
+    launch(["<code>launch_app(dir)</code>"]) --> ui[["<code>app_ui()</code><br/>navbar, filters sidebar, tab UIs"]]
+    launch --> data
+    csv[("token-metrics folder")] --> data
+    up[/"uploaded CSVs"/] --> data
+    subgraph srv["<strong>app_server()</strong>"]
+        data[["<code>mod_data_server()</code><br/>util_read_token_metrics()"]]
+        filt[["<code>mod_filters_server()</code><br/>date range, projects"]]
+        ov[["<code>mod_overview_server()</code><br/>util_plot_daily()"]]
+        pr[["<code>mod_project_server()</code><br/>util_plot_rank()"]]
+        se[["<code>mod_sessions_server()</code><br/>util_summarise_sessions()"]]
+        po[["<code>mod_prompts_server()</code><br/>util_plot_prompts()"]]
+        data -->|"metrics"| filt
+        filt -->|"filtered"| ov
+        filt -->|"filtered"| pr
+        filt -->|"filtered"| se
+        filt -->|"filtered"| po
+    end
+
+    style srv fill:#FFFFFF,color:#000000,stroke:#333,stroke-width:1px,rx:10,ry:10
+    style data fill:#4CBB9D,color:#FFFFFF
+    style filt fill:#4CBB9D,color:#FFFFFF
+```
+
+## Using the functions without the app
+
+The app's functions are exported, so you can run the same summaries in the console:
+
+```{r}
+#| label: utils
+metrics <- util_read_token_metrics()
+
+util_summarise_metrics(metrics, by = "day")
+util_summarise_metrics(metrics, by = "project")
+util_summarise_sessions(metrics)
+```
+
+## Changing the log level
+
+shokenuse logs each file read and each read error at the `INFO` level. `util_log_threshold()` changes how much it logs:
+
+```{r}
+#| label: logging
+util_log_threshold("DEBUG")   # more detail
+util_log_threshold("OFF")     # silence
+```
