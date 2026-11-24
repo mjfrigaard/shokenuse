@@ -1,43 +1,76 @@
-// Mid-century / atomic-age palette overrides.
-//
-// Bootstrap 5 dropped $code-bg, and pkgdown's `theme:` setting paints its
-// own background on <pre>, so we set both explicitly here. Loaded after
-// the syntax-highlighting theme, so these rules win without !important
-// in most cases — kept !important on the <pre>/<code> chain because
-// arrow-light's selectors are equally specific.
+// Shared light/dark theme for app-package sites (70s palette).
+// Colors come from _pkgdown.yml; this file adds what bslib variables can't.
 
-$brand-peach:     #FDEFE0;  // pale tangerine, code background
-$brand-deepblue:  #16486D;  // deep atomic blue, code text
-$brand-tangerine: #E87B2D;  // atomic tangerine, link hover accent
+$gold:   #E8A33D;
+$orange: #D2562B;
+$brick:  #B83A4B;
 
-// Inline <code> (BS5 no longer styles this with a background)
-:not(pre) > code,
-code {
-  background-color: $brand-peach;
-  color: $brand-deepblue;
-  padding: 0.15em 0.35em;
+:root,
+[data-bs-theme="light"] {
+  --app-code-bg: #F4ECD6;
+  --app-stripe-gap: #1B2A41;
+}
+
+[data-bs-theme="dark"] {
+  --app-code-bg: #1F2D44;
+  --bs-primary: #7FBFC6;
+  --bs-primary-rgb: 127, 191, 198;
+}
+
+// Navy navbar (navbar-bg in _pkgdown.yml) with cream text and a
+// three band stripe underneath
+.navbar {
+  --bs-navbar-color: rgba(242, 230, 194, 0.85);
+  --bs-navbar-hover-color: #{$gold};
+  --bs-navbar-active-color: #F2E6C2;
+  --bs-navbar-brand-color: #F2E6C2;
+  --bs-navbar-brand-hover-color: #{$gold};
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28242, 230, 194, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  --bs-navbar-toggler-border-color: rgba(242, 230, 194, 0.3);
+  color: #F2E6C2;
+  border-bottom: 0;
+  box-shadow:
+    0 3px 0 $gold,
+    0 6px 0 $orange,
+    0 9px 0 $brick;
+  margin-bottom: 9px;
+}
+
+.navbar .nav-text,
+.navbar .text-muted {
+  color: #{$gold} !important;
+}
+
+.navbar .nav-item .nav-link:hover,
+.navbar .nav-item.active .nav-link {
+  background: rgba(242, 230, 194, 0.1);
+}
+
+// Inline code and code blocks
+:not(pre) > code {
+  background-color: var(--app-code-bg);
+  padding: 0.1em 0.35em;
   border-radius: 3px;
 }
 
-// Code blocks: pale tangerine container, deep-blue default text.
-// Syntax-highlighted tokens inside still come from `theme: arrow-light`.
 pre {
-  background-color: $brand-peach !important;
-  color: $brand-deepblue;
+  background-color: var(--app-code-bg) !important;
+  border: 1px solid var(--bs-border-color);
 }
 
 pre code {
   background-color: transparent !important;
-  color: inherit;
   padding: 0;
 }
 
-// Atomic-tangerine accent on link hover — small mid-century flourish
-// against the deep Atomic Blue primary.
 a:hover {
-  color: $brand-tangerine;
-  text-decoration-color: $brand-tangerine;
+  text-decoration-color: $gold;
 }
+
+h1, h2, h3 {
+  letter-spacing: 0.01em;
+}
+
 // Mermaid diagrams: keep <code> labels plain inside the SVG
 svg[id^="mermaid"] code {
   background: transparent !important;
@@ -45,4 +78,31 @@ svg[id^="mermaid"] code {
   padding: 0;
   font-size: inherit;
   font-family: inherit;
+}
+
+// Mermaid in dark mode. Diagram `style` lines are inline !important, so
+// use properties they leave unset: fill-opacity on subgraph boxes, and
+// colors on the label text and edges.
+[data-bs-theme="dark"] svg[id^="mermaid"] {
+  g.cluster rect {
+    fill-opacity: 0.05;
+  }
+  .cluster-label .nodeLabel p,
+  .cluster-label .nodeLabel strong {
+    color: var(--bs-body-color);
+  }
+  .flowchart-link {
+    stroke: var(--bs-body-color) !important;
+  }
+  .arrowMarkerPath {
+    fill: var(--bs-body-color) !important;
+    stroke: var(--bs-body-color) !important;
+  }
+  .edgeLabel,
+  .edgeLabel p,
+  .edgeLabel rect {
+    background-color: var(--bs-body-bg) !important;
+    fill: var(--bs-body-bg) !important;
+    color: var(--bs-body-color);
+  }
 }
