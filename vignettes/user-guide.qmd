@@ -111,17 +111,25 @@ flowchart TD
 
 ### Call stack
 
-The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code. It starts at `launch_app()` and follows every internal function down to the `util_*` helpers. The internal `%||%` operator is left out because it appears under most modules:
+The call trees below are built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the trees always match the code. With `modules_only = TRUE`, the tree shows only how `launch_app()` reaches each module:
+
+```{r}
+#| label: call-stack-modules
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "launch_app", modules_only = TRUE)
+```
+
+The full tree follows every internal function down to the `util_*` helpers. The internal `%||%` operator is left out because it appears under most modules. `include_defaults = TRUE` adds calls made in default arguments, so `util_metrics_dir()` (from `dir = util_metrics_dir()`) shows up too:
 
 ```{r}
 #| label: call-stack
 #| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
 #| collapse: false
 #| comment: ""
-stackcallr::call_tree_dir("../R", root = "launch_app", exclude = "%||%")
+stackcallr::call_tree_dir("../R", root = "launch_app", exclude = "%||%", include_defaults = TRUE)
 ```
-
-`util_metrics_dir()` is missing from the tree because it is only called as a default argument (`dir = util_metrics_dir()`), and `call_tree_dir()` reads function bodies, not their arguments.
 
 ## Using the functions without the app
 
