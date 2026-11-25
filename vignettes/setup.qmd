@@ -1,0 +1,138 @@
+---
+title: "Setup"
+vignette: >
+  %\VignetteIndexEntry{Setup}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    eval: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(shokenuse)
+```
+
+Claude Code is a helper you talk to that writes code for you. shokenuse shows how much you use Claude Code and what that costs.
+
+R is a computer language for working with numbers. shokenuse is written in R, and it needs three things on each computer. First comes the shokenuse code itself. Next is a small program that reads what Claude Code has kept. Last is a way to run that program every hour.
+
+## Add shokenuse to R
+
+Run this line in R to get shokenuse:
+
+```{r}
+#| label: install
+#| code-fold: false
+pak::pak("mjfrigaard/shokenuse")
+```
+
+## Get the program
+
+The program `token-metrics.py` reads the records Claude Code keeps. It writes what it finds as tables in `~/.cache/token-metrics/`. It needs nothing more than the `python3` that comes with your computer. shokenuse does not come with the program yet. Keep it in a place where it will stay (the examples below use `/path/to/token-metrics.py`), and run it once yourself:
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+python3 /path/to/token-metrics.py
+```
+
+`vignette("token-metrics")` tells you what the program reads and how it adds up use and cost.
+
+## Run the program every hour
+
+The program only sees what Claude Code has kept at the moment it runs. Run it every hour so the tables stay up to date. macOS is one kind of computer system. Pop!_OS is another kind of computer system. Each one has its own way to run a program on time.
+
+### macOS
+
+On macOS, `launchd` can run the program every hour and each time you sign in. You set it up in `~/Library/LaunchAgents/`. `vignette("token-metrics")` shows how to set it up and the `launchctl` lines that start and stop it.
+
+### Pop!_OS
+
+On Pop!_OS, `systemd` can run the program every hour. Save the two parts below in `~/.config/systemd/user/`, each under the name above it.
+
+`token-metrics.service`:
+
+```ini
+[Unit]
+Description=Claude Code token and cost report
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /path/to/token-metrics.py
+```
+
+`token-metrics.timer`:
+
+```ini
+[Unit]
+Description=Run token-metrics hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+`Persistent=true` makes up an hour the computer missed while it slept or was off. Turn the timer on and check it:
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+systemctl --user daemon-reload
+systemctl --user enable --now token-metrics.timer    # start hourly runs
+systemctl --user list-timers token-metrics.timer     # next run
+systemctl --user disable --now token-metrics.timer   # stop hourly runs
+```
+
+## Choose how long Claude Code keeps its records
+
+Claude Code keeps a record of each talk you have with it in `~/.claude/projects/`. It clears out records older than `cleanupPeriodDays`, a number set in `~/.claude/settings.json`. When that number is missing, the limit is 30 days. Once a record is gone, the program can no longer read it. The tables the program already wrote are then the only place those days live on.
+
+That leads to two rules:
+
+* Keep the old tables in `~/.cache/token-metrics/`. If you have a program that clears old things out of `~/.cache`, have it leave that place alone.
+* Set a bigger `cleanupPeriodDays` only if you want Claude Code to keep its own records longer. shokenuse does not need it.
+
+On Pop!_OS, the program can show or change this number. Each line below shows the number, then runs the program as normal:
+
+```{bash}
+#| eval: false
+#| code-fold: false
+#| echo: true
+python3 /path/to/token-metrics.py --show-cleanup-days       # print the value
+python3 /path/to/token-metrics.py --set-cleanup-days 90     # set it to 90 days
+```
+
+`--set-cleanup-days` changes only that one number and leaves the rest of `settings.json` as it was. It takes a whole number of 1 or more. The run each hour uses none of these lines, so it never changes the number.
+
+## Open shokenuse
+
+Run this line in R to open shokenuse:
+
+```{r}
+#| label: launch
+#| code-fold: false
+library(shokenuse)
+launch_app()    # reads ~/.cache/token-metrics
+```
+
+`vignette("user-guide")` walks through each page of shokenuse and the R code behind it.
+
+## Next: one step to set it all up
+
+The goal is a `.dmg` for macOS and a `.deb` for Pop!_OS that do all of the above in one step:
+
+* Put shokenuse and the program on your computer together.
+* Set it up to run the program every hour.
+* Ask how long Claude Code should keep its records. The answer starts at 30 days, and `settings.json` changes only if you pick another number.
+
+Until then, follow the steps on this page.

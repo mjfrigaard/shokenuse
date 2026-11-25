@@ -49,5 +49,6 @@ articles:
 - title: "Guides"
   navbar: "Guides"
   contents:
+  - setup
   - user-guide
   - token-metrics
