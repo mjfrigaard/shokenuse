@@ -56,3 +56,15 @@ The sidebar filters apply to every tab after Data:
 |---|---|
 | Date range | Set to the first and last day in the data whenever data loads. |
 | Projects | Leave empty for all projects, or pick one or more. |
+
+## Call stack
+
+`mod_data_server()` reads the folder once at startup and again on Reload, then merges any uploads. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+
+```{r}
+#| label: call-stack-data
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "mod_data_server", exclude = "%||%")
+```

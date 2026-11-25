@@ -105,6 +105,20 @@ flowchart TD
     style filt fill:#4CBB9D,color:#FFFFFF
 ```
 
+### Call stack
+
+The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code. It starts at `launch_app()` and follows every internal function down to the `util_*` helpers. The internal `%||%` operator is left out because it appears under most modules:
+
+```{r}
+#| label: call-stack
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "launch_app", exclude = "%||%")
+```
+
+`util_metrics_dir()` is missing from the tree because it is only called as a default argument (`dir = util_metrics_dir()`), and `call_tree_dir()` reads function bodies, not their arguments.
+
 ## Using the functions without the app
 
 The app's functions are exported, so you can run the same summaries in the console:

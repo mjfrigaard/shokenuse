@@ -31,9 +31,12 @@ Imports:
 Suggests:
     knitr,
     quarto,
+    stackcallr,
     testthat (>= 3.0.0),
     withr
 VignetteBuilder: quarto
+Remotes:
+    mjfrigaard/stackcallr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.1
 URL: https://mjfrigaard.github.io/shokenuse/

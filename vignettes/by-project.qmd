@@ -35,3 +35,15 @@ metrics <- util_read_token_metrics()
 by_project <- util_summarise_metrics(metrics, by = c("project", "url"))
 util_plot_rank(by_project, "project", "cost")
 ```
+
+## Call stack
+
+`mod_project_server()` summarises the filtered data once and draws both rank charts from that summary. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+
+```{r}
+#| label: call-stack-by-project
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "mod_project_server")
+```

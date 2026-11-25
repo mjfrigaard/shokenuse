@@ -45,3 +45,16 @@ metrics |>
   util_lump_projects(n = 8) |>
   util_summarise_metrics(by = c("day", "project"))
 ```
+
+## Call stack
+
+The UI builds its five value boxes with the internal `.value_box()` helper, and the server draws the daily chart. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+
+```{r}
+#| label: call-stack-overview
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "mod_overview_ui")
+stackcallr::call_tree_dir("../R", root = "mod_overview_server", exclude = "%||%")
+```

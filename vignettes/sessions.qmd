@@ -53,3 +53,16 @@ sessions <- util_summarise_sessions(util_read_token_metrics())
 util_plot_sessions(sessions)
 dplyr::filter(sessions, outlier)
 ```
+
+## Call stack
+
+The UI builds its value boxes with `.value_box()`, and the server summarises sessions before flagging outliers and plotting. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+
+```{r}
+#| label: call-stack-sessions
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "mod_sessions_ui")
+stackcallr::call_tree_dir("../R", root = "mod_sessions_server")
+```

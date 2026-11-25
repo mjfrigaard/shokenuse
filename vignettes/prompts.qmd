@@ -41,3 +41,15 @@ metrics <- util_read_token_metrics()
 util_plot_prompts(metrics, "tokens")
 dplyr::slice_max(metrics, cost, n = 10)
 ```
+
+## Call stack
+
+`mod_prompts_server()` draws the ranking chart and formats the largest prompts table. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+
+```{r}
+#| label: call-stack-prompts
+#| eval: !expr requireNamespace("stackcallr", quietly = TRUE)
+#| collapse: false
+#| comment: ""
+stackcallr::call_tree_dir("../R", root = "mod_prompts_server", exclude = "%||%")
+```
