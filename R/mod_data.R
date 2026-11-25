@@ -54,14 +54,14 @@ mod_data_server <- function(id, dir = util_metrics_dir()) {
 
     from_dir <- shiny::reactive({
       path <- input$dir %||% dir
-      .safe_read(path, session)
+      pvt_safe_read(path, session)
     }) |>
       shiny::bindEvent(input$reload, ignoreNULL = FALSE)
 
     uploaded <- shiny::reactiveVal(util_empty_metrics_tbl())
 
     shiny::observeEvent(input$upload, {
-      new <- .safe_read(input$upload$datapath, session)
+      new <- pvt_safe_read(input$upload$datapath, session)
       uploaded(util_combine_metrics(uploaded(), new))
     })
 
@@ -88,7 +88,7 @@ mod_data_server <- function(id, dir = util_metrics_dir()) {
       if (nrow(df) == 0) return(NULL)
       df |>
         dplyr::slice_max(date, n = 20, with_ties = FALSE) |>
-        .format_prompts()
+        pvt_format_prompts()
     }, striped = TRUE, hover = TRUE, spacing = "s")
 
     metrics
@@ -96,7 +96,7 @@ mod_data_server <- function(id, dir = util_metrics_dir()) {
 }
 
 
-.safe_read <- function(path, session) {
+pvt_safe_read <- function(path, session) {
   tryCatch(
     util_read_token_metrics(path),
     error = function(e) {
@@ -110,7 +110,7 @@ mod_data_server <- function(id, dir = util_metrics_dir()) {
 }
 
 
-.format_prompts <- function(df) {
+pvt_format_prompts <- function(df) {
   df |>
     dplyr::transmute(
       Time       = format(date, "%Y-%m-%d %H:%M"),

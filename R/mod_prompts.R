@@ -55,7 +55,7 @@ mod_prompts_server <- function(id, filtered) {
       if (nrow(df) == 0) return(NULL)
       df |>
         dplyr::slice_max(.data[[metric()]], n = input$n %||% 25, with_ties = FALSE) |>
-        .format_prompts()
+        pvt_format_prompts()
     }, striped = TRUE, hover = TRUE, spacing = "s")
   })
 }

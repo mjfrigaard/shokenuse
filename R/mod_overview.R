@@ -7,15 +7,15 @@ mod_overview_ui <- function(id) {
   shiny::tagList(
     bslib::layout_column_wrap(
       width = "180px", fill = FALSE,
-      .value_box("Tokens", ns("vb_tokens"), "lightning-charge", "primary",
+      pvt_value_box("Tokens", ns("vb_tokens"), "lightning-charge", "primary",
                  "Input, output, cache write, and cache read tokens. Cache reads are most of them."),
-      .value_box("Cost (USD)", ns("vb_cost"), "currency-dollar", "warning",
+      pvt_value_box("Cost (USD)", ns("vb_cost"), "currency-dollar", "warning",
                  "API list price equivalent, not what a subscription bills."),
-      .value_box("Prompts", ns("vb_prompts"), "chat-left-text", "success",
+      pvt_value_box("Prompts", ns("vb_prompts"), "chat-left-text", "success",
                  "One row per prompt in the token-metrics files."),
-      .value_box("Sessions", ns("vb_sessions"), "collection", "info",
+      pvt_value_box("Sessions", ns("vb_sessions"), "collection", "info",
                  "Distinct Claude Code sessions."),
-      .value_box("Cost / prompt", ns("vb_per_prompt"), "calculator", "secondary",
+      pvt_value_box("Cost / prompt", ns("vb_per_prompt"), "calculator", "secondary",
                  "Mean cost per prompt.")
     ),
     bslib::card(
@@ -61,7 +61,7 @@ mod_overview_server <- function(id, filtered) {
 }
 
 
-.value_box <- function(title, output_id, icon, theme, tip) {
+pvt_value_box <- function(title, output_id, icon, theme, tip) {
   bslib::value_box(
     title = bslib::tooltip(
       shiny::tagList(title, " ", bsicons::bs_icon("question-circle", size = "0.75em")),

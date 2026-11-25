@@ -59,12 +59,12 @@ util_read_token_metrics <- function(path = util_metrics_dir()) {
                    namespace = "shokenuse")
   if (length(files) == 0) return(util_empty_metrics_tbl())
 
-  raw <- dplyr::bind_rows(lapply(files, .read_metrics_file))
-  util_combine_metrics(.tidy_metrics(raw))
+  raw <- dplyr::bind_rows(lapply(files, pvt_read_metrics_file))
+  util_combine_metrics(pvt_tidy_metrics(raw))
 }
 
 
-.read_metrics_file <- function(file) {
+pvt_read_metrics_file <- function(file) {
   df <- vroom::vroom(
     file, delim = ",",
     col_types = vroom::cols(.default = vroom::col_character()),
@@ -81,7 +81,7 @@ util_read_token_metrics <- function(path = util_metrics_dir()) {
 }
 
 
-.tidy_metrics <- function(raw) {
+pvt_tidy_metrics <- function(raw) {
   raw |>
     dplyr::mutate(
       day    = as.Date(substr(date, 1, 10)),
@@ -185,12 +185,12 @@ util_summarise_sessions <- function(metrics) {
       first_prompt = dplyr::first(prompt),
       .groups      = "drop"
     ) |>
-    dplyr::mutate(outlier = .flag_outliers(cost)) |>
+    dplyr::mutate(outlier = pvt_flag_outliers(cost)) |>
     dplyr::arrange(dplyr::desc(cost))
 }
 
 
-.flag_outliers <- function(x) {
+pvt_flag_outliers <- function(x) {
   s <- stats::sd(x)
   if (is.na(s) || s == 0) return(rep(FALSE, length(x)))
   x > mean(x) + 2 * s

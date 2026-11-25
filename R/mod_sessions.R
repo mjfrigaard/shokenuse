@@ -7,13 +7,13 @@ mod_sessions_ui <- function(id) {
   shiny::tagList(
     bslib::layout_column_wrap(
       width = "200px", fill = FALSE,
-      .value_box("Sessions", ns("vb_total"), "collection", "primary",
+      pvt_value_box("Sessions", ns("vb_total"), "collection", "primary",
                  "Distinct session ids in the filtered data."),
-      .value_box("Median cost / session", ns("vb_median"), "cash-stack", "secondary",
+      pvt_value_box("Median cost / session", ns("vb_median"), "cash-stack", "secondary",
                  "Half of the sessions cost less than this."),
-      .value_box("Most expensive", ns("vb_max"), "exclamation-triangle", "warning",
+      pvt_value_box("Most expensive", ns("vb_max"), "exclamation-triangle", "warning",
                  "Cost of the single most expensive session."),
-      .value_box("Outliers", ns("vb_outliers"), "graph-up-arrow", "danger",
+      pvt_value_box("Outliers", ns("vb_outliers"), "graph-up-arrow", "danger",
                  "Sessions costing more than the mean plus two standard deviations.")
     ),
     bslib::card(
@@ -47,17 +47,17 @@ mod_sessions_server <- function(id, filtered) {
 
     sessions <- shiny::reactive(util_summarise_sessions(filtered()))
 
-    .or_dash <- function(f) {
+    pvt_or_dash <- function(f) {
       shiny::renderText({
         s <- sessions()
         if (nrow(s) == 0) "-" else f(s)
       })
     }
 
-    output$vb_total    <- .or_dash(function(s) scales::comma(nrow(s)))
-    output$vb_median   <- .or_dash(function(s) scales::dollar(stats::median(s$cost), accuracy = 0.01))
-    output$vb_max      <- .or_dash(function(s) scales::dollar(max(s$cost), accuracy = 0.01))
-    output$vb_outliers <- .or_dash(function(s) scales::comma(sum(s$outlier)))
+    output$vb_total    <- pvt_or_dash(function(s) scales::comma(nrow(s)))
+    output$vb_median   <- pvt_or_dash(function(s) scales::dollar(stats::median(s$cost), accuracy = 0.01))
+    output$vb_max      <- pvt_or_dash(function(s) scales::dollar(max(s$cost), accuracy = 0.01))
+    output$vb_outliers <- pvt_or_dash(function(s) scales::comma(sum(s$outlier)))
 
     output$plot <- shiny::renderPlot(util_plot_sessions(sessions()), res = 96)
 
