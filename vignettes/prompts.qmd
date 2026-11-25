@@ -19,6 +19,10 @@ library(shokenuse)
 
 The Prompts tab finds the prompts that used the most tokens or cost the most.
 
+The screenshot below shows the tab with the example data that ships with the package.
+
+![The Prompts tab with the example data](images/prompts.png){fig-alt="Prompts tab: search box, rank and rows inputs, a histogram of tokens per prompt on a log scale, and a table of the largest prompts."}
+
 ## Searching and ranking
 
 | Input | Description |

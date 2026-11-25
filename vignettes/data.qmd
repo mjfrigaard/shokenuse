@@ -19,6 +19,10 @@ library(shokenuse)
 
 The Data tab loads the token-metrics files. Every other tab reads what this tab loads, so start here when a number looks wrong.
 
+The screenshot below shows the tab with the example data that ships with the package.
+
+![The Data tab with the example data](images/data.png){fig-alt="Data tab: folder path, Reload folder button, CSV upload, and a table of the latest prompts with time, project, prompt, tokens, and cost."}
+
 ## Loading files
 
 | Input | Description |

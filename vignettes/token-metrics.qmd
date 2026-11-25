@@ -188,6 +188,10 @@ Each run prints one line (`wrote N file(s)`) to the agent's log.
 
 ## Reading the files in R
 
+The Data tab shows the same files after the app reads them, newest prompts first:
+
+![The Data tab with the example data](images/data.png){fig-alt="Data tab: folder path, Reload folder button, CSV upload, and a table of the latest prompts with time, project, prompt, tokens, and cost."}
+
 `util_read_token_metrics()` reads the whole folder, the same way the dashboard does:
 
 ```{r}

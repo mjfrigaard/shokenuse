@@ -19,6 +19,10 @@ library(shokenuse)
 
 The Overview tab answers the first question: how much did I use? It gives totals for the filtered data and a chart of each day.
 
+The screenshot below shows the tab with the example data that ships with the package.
+
+![The Overview tab with the example data](images/overview.png){fig-alt="Overview tab: five value boxes for tokens, cost, prompts, sessions, and cost per prompt, above a stacked bar chart of daily tokens by project."}
+
 ## Value boxes
 
 | Box | What it shows |
@@ -48,7 +52,7 @@ metrics |>
 
 ## Call stack
 
-The UI builds its five value boxes with the internal `.value_box()` helper, and the server draws the daily chart. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+The UI builds its five value boxes with the internal `pvt_value_box()` helper, and the server draws the daily chart. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
 
 ```{r}
 #| label: call-stack-overview

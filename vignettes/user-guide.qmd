@@ -71,6 +71,10 @@ The app has five tabs. Each one has its own article:
 
 The sidebar date range and project filters apply to every tab after Data.
 
+The Overview tab below shows the layout every tab shares: the navbar across the top, the filters sidebar on the left, and the tab's cards on the right.
+
+![The Overview tab with the example data](images/overview.png){fig-alt="Overview tab: five value boxes for tokens, cost, prompts, sessions, and cost per prompt, above a stacked bar chart of daily tokens by project."}
+
 ## Architecture
 
 The diagram below shows how the modules share data. The Data module reads the folder and any uploads into one `metrics` reactive. The Filters module applies the sidebar filters to `metrics` and passes the result, `filtered`, to every tab module. Each tab module calls the `util_*` functions to summarise and plot.

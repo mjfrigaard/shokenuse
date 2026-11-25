@@ -252,6 +252,10 @@ library(shokenuse)
 launch_app()    # reads ~/.cache/token-metrics
 ```
 
+The Data tab confirms what loaded. The summary above the table counts prompts, sessions, and projects, and gives the date range:
+
+![The Data tab with the example data](images/data.png){fig-alt="Data tab: folder path, Reload folder button, CSV upload, and a table of the latest prompts with time, project, prompt, tokens, and cost."}
+
 ## Recap
 
 The installed app will own the whole setup. It ships one script for both machines, copies it to a stable folder, and schedules it with launchd or systemd. A setup screen you can reopen at any time sets `cleanupPeriodDays` and the session duration measure. The per day CSV layout keeps one row per prompt. Keeping `~/.cache/token-metrics/` out of cleanup routines preserves the history that Claude Code's transcripts lose after 30 days.

@@ -19,6 +19,10 @@ library(shokenuse)
 
 The By Project tab compares projects. A project is the git repository of the working directory, or the folder name outside a repository.
 
+The screenshot below shows the tab with the example data that ships with the package.
+
+![The By Project tab with the example data](images/by-project.png){fig-alt="By Project tab: bar charts of tokens and cost by project, above a table of projects with remotes, prompts, sessions, tokens, and cost."}
+
 ## Charts and table
 
 | Output | What it shows |

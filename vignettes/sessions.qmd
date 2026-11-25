@@ -19,6 +19,10 @@ library(shokenuse)
 
 The Sessions tab summarises each Claude Code session. It is the fastest way to find the one session that cost more than the rest.
 
+The screenshot below shows the tab with the example data that ships with the package.
+
+![The Sessions tab with the example data](images/sessions.png){fig-alt="Sessions tab: four value boxes, a bar chart of cost per session with one outlier highlighted, and a sessions table with an Export CSV button."}
+
 ## Value boxes
 
 | Box | What it shows |
@@ -56,7 +60,7 @@ dplyr::filter(sessions, outlier)
 
 ## Call stack
 
-The UI builds its value boxes with `.value_box()`, and the server summarises sessions before flagging outliers and plotting. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
+The UI builds its value boxes with `pvt_value_box()`, and the server summarises sessions before flagging outliers and plotting. The call tree below is built with [`stackcallr`](https://mjfrigaard.github.io/stackcallr/). `call_tree_dir()` parses the files in `R/` without running them, so the tree always matches the code.
 
 ```{r}
 #| label: call-stack-sessions
